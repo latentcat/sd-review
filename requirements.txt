@@ -1,0 +1,21 @@
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+torchaudio
+accelerate
+diffusers
+numpy
+Pillow
+pydantic
+pydantic-settings
+rich
+safetensors
+tokenizers
+tqdm
+gradio
+peft
+tomesd
+acora
+pytz
+pre-commit
+python-dotenv
