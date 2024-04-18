@@ -96,7 +96,6 @@ def run_sd2(prompts, negative_prompt, width, height, out_dir):
     del pipe
 
 def run_sc(prompts, negative_prompt, width, height, out_dir):
-    prompt = prompt
     negative_prompt = negative_prompt
 
     prior = StableCascadePriorPipeline.from_pretrained(
