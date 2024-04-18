@@ -1,6 +1,7 @@
+import io
 from PIL import Image, ImageDraw, ImageFont
 import os
-
+import requests
 from env import env
 import torch
 from diffusers import (
@@ -11,6 +12,35 @@ from diffusers import (
     StableCascadeDecoderPipeline,
     StableCascadePriorPipeline,
 )
+
+
+def review_sd3(prompt, negative_prompt,aspect_ratio):
+    response = requests.post(
+        "https://api.stability.ai/v2beta/stable-image/generate/sd3",
+        headers={
+            "authorization": f"Bearer {env.sd3_key}",
+            "accept": "image/*"
+        },
+        files={"none": ''},
+        data={
+            "prompt": prompt,
+            "aspect_ratio": aspect_ratio,
+            "model": "sd3",
+            "negative_prompt": negative_prompt,
+            "seed": 0,
+            "output_format": "jpeg",
+        },
+    )
+    
+    if response.status_code == 200:
+        # 将 bytes 数据转换为 PIL Image 对象
+        image_bytes = io.BytesIO(response.content)
+        image = Image.open(image_bytes)
+        # 保存为临时文件
+        return image
+    else:
+        raise Exception(str(response.json()))
+
 
 
 def review_sd15(pipe, prompt, negative_prompt,w,h):
@@ -131,6 +161,10 @@ def run_sdxl(prompts, negative_prompt, width, height, out_dir):
 
     del pipe
 
+def run_sd3(prompts, negative_prompt,out_dir):
+    for prompt in prompts:
+        png_3 = review_sd3(prompt, negative_prompt,"1:1")
+        png_3.save(f"{out_dir}sd3_{prompt}.png")
 
 def merge_images_in_folder(input_folder, font_size=20):
     # 获取input_folder中的所有文件
@@ -197,6 +231,7 @@ def main():
     run_sd2(prompts, negative_prompt, int(width/4*3), int(height/4*3), out_dir)
     run_sdxl(prompts, negative_prompt, width, height, out_dir)
     run_sc(prompts, negative_prompt, width, height, out_dir)
+    run_sd3(prompts, negative_prompt, out_dir)
     merge_images_in_folder(out_dir, font_size=35)
 
 

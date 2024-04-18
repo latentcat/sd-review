@@ -19,3 +19,4 @@ acora
 pytz
 pre-commit
 python-dotenv
+requests
