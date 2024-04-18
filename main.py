@@ -1,4 +1,6 @@
+from PIL import Image, ImageDraw, ImageFont
 import os
+
 from env import env
 import torch
 from diffusers import (
@@ -130,6 +132,61 @@ def run_sdxl(prompts, negative_prompt, width, height, out_dir):
     del pipe
 
 
+def merge_images_in_folder(input_folder, font_size=20):
+    # 获取input_folder中的所有文件
+    files = [f for f in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, f))]
+
+    # 按后缀数字分组
+    groups = {}
+    for file in files:
+        prefix, num = file.rsplit('_', 1)
+        num = num.split('.')[0]
+        if num not in groups:
+            groups[num] = []
+        groups[num].append(file)
+
+    output_folder = os.path.join(input_folder, "merged")
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # 为了调整字体大小，我们需要指定一个字体文件
+    # 如果你没有特定的字体文件，可以使用系统字体，或者使用ImageFont.load_default()
+    # font = ImageFont.load_default()
+    # 以下是使用truetype加载字体文件的示例，你需要替换成实际的字体文件路径
+    font_path = "font.otf"  # 请确保这个路径指向了一个有效的字体文件
+    font = ImageFont.truetype(font_path, font_size)
+
+    # 对每组图片进行处理
+    for num, group_files in groups.items():
+        target_size = (1024, 1024)
+        total_width = target_size[0] * len(group_files)
+        total_height = target_size[1]
+        new_im = Image.new('RGB', (total_width, total_height + 50), (255, 255, 255))  # 增加高度以适应更大的字体
+
+        x_offset = 0
+        for file in group_files:
+            im = Image.open(os.path.join(input_folder, file))
+            im = im.resize(target_size)
+            new_im.paste(im, (x_offset, 50))  # 从50的高度开始，给文件名留更多空间
+            x_offset += target_size[0]+50
+
+        # 添加文件名
+        draw = ImageDraw.Draw(new_im)
+        x_offset = 512
+        for file in group_files:
+            draw.text((x_offset + 10, 10), file[:-4], fill=(0, 0, 0), font=font)
+            x_offset += target_size[0]+50
+
+        # 保存新图片
+        new_im.save(os.path.join(output_folder, f"merged_{num}.png"))
+
+    print("图片处理完成。")
+
+# 使用示例
+merge_images_in_folder("./output", font_size=35)
+
+
+
 def main():
     with open("prompts.txt", "r") as f:
         prompts = f.readlines()
@@ -143,6 +200,7 @@ def main():
     run_sd2(prompts, negative_prompt, int(width/4*3), int(height/4*3), out_dir)
     run_sdxl(prompts, negative_prompt, width, height, out_dir)
     run_sc(prompts, negative_prompt, width, height, out_dir)
+    merge_images_in_folder(out_dir)
 
 
 if __name__ == "__main__":
