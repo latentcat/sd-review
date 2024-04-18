@@ -56,4 +56,6 @@ A powerful visual metaphor featuring a sequence of four bananas, each transition
 A striking duality illustration featuring SpongeBob SquarePants in two contrasting expressions. On the left, a fierce SpongeBob sports a darker fur coat, red eyes, and a menacing grin, surrounded by a fiery orange and black background with sparks flying. On the right, a cheerful SpongeBob appears in a bright yellow fur coat, blue eyes, and a contagious smile, against a serene blue background that contrasts sharply with the left side. A lightning bolt connects these two opposing natures, emphasizing the duality of SpongeBob's character.
 ```
 
+![](./github/merged/merged_6.jpg)
+
 ---

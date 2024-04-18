@@ -253,11 +253,11 @@ def main():
     out_dir = "./output/"
     os.makedirs(out_dir, exist_ok=True)
 
-    # run_sd3(prompts, negative_prompt, out_dir)
-    # run_sd15(prompts, negative_prompt, int(width/2), int(height/2), out_dir)
-    # run_sd2(prompts, negative_prompt, int(width/4*3), int(height/4*3), out_dir)
-    # run_sdxl(prompts, negative_prompt, width, height, out_dir)
-    # run_sc(prompts, negative_prompt, width, height, out_dir)
+    run_sd3(prompts, negative_prompt, out_dir)
+    run_sd15(prompts, negative_prompt, int(width / 2), int(height / 2), out_dir)
+    run_sd2(prompts, negative_prompt, int(width / 4 * 3), int(height / 4 * 3), out_dir)
+    run_sdxl(prompts, negative_prompt, width, height, out_dir)
+    run_sc(prompts, negative_prompt, width, height, out_dir)
     merge_images_in_folder(out_dir, font_size=35)
 
 
