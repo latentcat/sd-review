@@ -93,18 +93,21 @@ def review_sc(prompt, negative_prompt,w,h):
 
 
 def main():
+    with open("prompts.txt", "r") as f:
+        prompts = f.readlines()
     width = 1024
     height = 1024
-    prompt = "A beautiful sunset"
     negative_prompt = ""
-    png_15 = review_sd15(prompt, negative_prompt,width,height)
-    png_2 =  review_sd2(prompt, negative_prompt,width,height)
-    png_xl = review_sdxl(prompt, negative_prompt,width,height)
-    png_sc = review_sc(prompt, negative_prompt,width,height)
-    png_15.save("sd15.png")
-    png_2.save("sd2.png")
-    png_xl.save("sdxl.png")
-    png_sc.save("sc.png")
+    i = 0
+    for prompt in prompts:
+        png_15 = review_sd15(prompt, negative_prompt,width,height)
+        png_2 =  review_sd2(prompt, negative_prompt,width,height)
+        png_xl = review_sdxl(prompt, negative_prompt,width,height)
+        png_sc = review_sc(prompt, negative_prompt,width,height)
+        png_15.save(f"sd15_{i}.png")
+        png_2.save(f"sd2_{i}.png")
+        png_xl.save(f"sdxl_{i}.png")
+        png_sc.save(f"sc_{i}.png")
 
 if __name__ == "__main__":
     main()
