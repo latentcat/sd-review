@@ -137,8 +137,8 @@ def main():
     out_dir = "./output/"
     os.makedirs(out_dir, exist_ok=True)
 
-    run_sd15(prompts, negative_prompt, width, height, out_dir)
-    run_sd2(prompts, negative_prompt, width, height, out_dir)
+    run_sd15(prompts, negative_prompt, width/2, height/2, out_dir)
+    run_sd2(prompts, negative_prompt, width/4*3, height/4*3, out_dir)
     run_sdxl(prompts, negative_prompt, width, height, out_dir)
     run_sc(prompts, negative_prompt, width, height, out_dir)
 
