@@ -10,17 +10,21 @@ from diffusers import (
 )
 
 
-def review_sd15():
+def review_sd15(prompt, negative_prompt,w,h):
     pipe = StableDiffusionPipeline.from_pretrained(
         env.sd15_path, torch_dtype=torch.float16
     )
     pipe = pipe.to("cuda")
 
-    prompt = "a photo of an astronaut riding a horse on mars"
-    image = pipe(prompt).images[0]
+    image = pipe(prompt=prompt,
+                 negative_prompt=negative_prompt,
+                    height=w,
+                    width=h,
+                    num_inference_steps=50,).images[0]
+    return image
 
 
-def review_sd2():
+def review_sd2(prompt, negative_prompt,w,h):
     repo_id = env.sd2_path
     pipe = DiffusionPipeline.from_pretrained(
         repo_id, torch_dtype=torch.float16, revision="fp16"
@@ -29,24 +33,34 @@ def review_sd2():
     pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
     pipe = pipe.to("cuda")
 
-    prompt = "High quality photo of an astronaut riding a horse in space"
-    image = pipe(prompt, num_inference_steps=25).images[0]
-    image
+    prompt = prompt
+    image = pipe(prompt=prompt,
+                 negative_prompt=negative_prompt,
+                    height=w,
+                    width=h,
+                    num_inference_steps=50,).images[0]
+    return image
 
 
-def review_sdxl():
+def review_sdxl(prompt, negative_prompt,w,h):
     pipe = StableDiffusionXLPipeline.from_pretrained(
         env.sdxl_path, torch_dtype=torch.float16
     )
     pipe = pipe.to("cuda")
 
-    prompt = "a photo of an astronaut riding a horse on mars"
-    image = pipe(prompt).images[0]
+    prompt = prompt
+    image = pipe(prompt=prompt,
+                 negative_prompt=negative_prompt,
+                    height=w,
+                    width=h,
+                    num_inference_steps=50,
+                 ).images[0]
+    return image
 
 
-def review_sc():
-    prompt = "an image of a shiba inu, donning a spacesuit and helmet"
-    negative_prompt = ""
+def review_sc(prompt, negative_prompt,w,h):
+    prompt = prompt
+    negative_prompt = negative_prompt
 
     prior = StableCascadePriorPipeline.from_pretrained(
         env.sc_prior_path, variant="bf16", torch_dtype=torch.bfloat16
@@ -58,12 +72,12 @@ def review_sc():
     prior.enable_model_cpu_offload()
     prior_output = prior(
         prompt=prompt,
-        height=1024,
-        width=1024,
+        height=w,
+        width=h,
         negative_prompt=negative_prompt,
         guidance_scale=4.0,
         num_images_per_prompt=1,
-        num_inference_steps=20,
+        num_inference_steps=50,
     )
 
     decoder.enable_model_cpu_offload()
@@ -75,15 +89,22 @@ def review_sc():
         output_type="pil",
         num_inference_steps=10,
     ).images[0]
-    decoder_output.save("cascade.png")
+    return decoder_output
 
 
 def main():
-    review_sd15()
-    review_sd2()
-    review_sdxl()
-    review_sc()
-
+    width = 1024
+    height = 1024
+    prompt = "A beautiful sunset"
+    negative_prompt = ""
+    png_15 = review_sd15(prompt, negative_prompt,width,height)
+    png_2 =  review_sd2(prompt, negative_prompt,width,height)
+    png_xl = review_sdxl(prompt, negative_prompt,width,height)
+    png_sc = review_sc(prompt, negative_prompt,width,height)
+    png_15.save("sd15.png")
+    png_2.save("sd2.png")
+    png_xl.save("sdxl.png")
+    png_sc.save("sc.png")
 
 if __name__ == "__main__":
     main()
