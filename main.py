@@ -162,9 +162,11 @@ def run_sdxl(prompts, negative_prompt, width, height, out_dir):
     del pipe
 
 def run_sd3(prompts, negative_prompt,out_dir):
+    i = 0
     for prompt in prompts:
         png_3 = review_sd3(prompt, negative_prompt,"1:1")
-        png_3.save(f"{out_dir}sd3_{prompt}.png")
+        png_3.save(f"{out_dir}sd3_{i}.png")
+        i+=1
 
 def merge_images_in_folder(input_folder, font_size=20):
     # 获取input_folder中的所有文件
