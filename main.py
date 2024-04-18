@@ -45,7 +45,6 @@ def review_sdxl(pipe, prompt, negative_prompt,w,h):
 
 def review_sc(prior, decoder, prompt, negative_prompt,w,h):
 
-    prior.enable_model_cpu_offload()
     prior_output = prior(
         prompt=prompt,
         height=w,
@@ -56,7 +55,6 @@ def review_sc(prior, decoder, prompt, negative_prompt,w,h):
         num_inference_steps=50,
     )
 
-    decoder.enable_model_cpu_offload()
     decoder_output = decoder(
         image_embeddings=prior_output.image_embeddings.to(torch.float16),
         prompt=prompt,
@@ -101,9 +99,13 @@ def run_sc(prompts, negative_prompt, width, height, out_dir):
     prior = StableCascadePriorPipeline.from_pretrained(
         env.sc_prior_path, variant="bf16", torch_dtype=torch.bfloat16
     )
+    prior.enable_model_cpu_offload()
+
     decoder = StableCascadeDecoderPipeline.from_pretrained(
         env.sc_decoder_path, variant="bf16", torch_dtype=torch.float16
     )
+    decoder.enable_model_cpu_offload()
+
     i = 0
     for prompt in prompts:
         png_xl = review_sc(prior, decoder, prompt, negative_prompt,width,height)
