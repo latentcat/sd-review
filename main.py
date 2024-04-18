@@ -174,7 +174,7 @@ def merge_images_in_folder(input_folder, font_size=20):
         draw = ImageDraw.Draw(new_im)
         x_offset = 512
         for file in group_files:
-            draw.text((x_offset + 10, 10), file[:-4], fill=(0, 0, 0), font=font)
+            draw.text((x_offset + 10, 10), file[:-4], fill=(0, 0, 0), font=font, align="center")
             x_offset += target_size[0]+50
 
         # 保存新图片
