@@ -14,7 +14,7 @@ class Env(BaseSettings):
     sdxl_path: str = "stabilityai/stable-diffusion-xl-base-1.0"
     sc_prior_path: str = "stabilityai/stable-cascade-prior"
     sc_decoder_path: str = "stabilityai/stable-cascade"
-    sd3_key: str = ""
+
     hf_endpoint: str = "https://huggingface.co"
     proxy: str = ""
 

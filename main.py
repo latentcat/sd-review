@@ -14,14 +14,14 @@ from diffusers import (
 )
 
 
-def review_sd3(prompt, negative_prompt,aspect_ratio):
+def review_sd3(prompt, negative_prompt, aspect_ratio):
     response = requests.post(
         "https://api.stability.ai/v2beta/stable-image/generate/sd3",
         headers={
-            "authorization": f"Bearer {env.sd3_key}",
-            "accept": "image/*"
+            "authorization": f"Bearer {env.stabilityai_api_key}",
+            "accept": "image/*",
         },
-        files={"none": ''},
+        files={"none": ""},
         data={
             "prompt": prompt,
             "aspect_ratio": aspect_ratio,
@@ -31,7 +31,7 @@ def review_sd3(prompt, negative_prompt,aspect_ratio):
             "output_format": "jpeg",
         },
     )
-    
+
     if response.status_code == 200:
         # 将 bytes 数据转换为 PIL Image 对象
         image_bytes = io.BytesIO(response.content)
@@ -42,41 +42,42 @@ def review_sd3(prompt, negative_prompt,aspect_ratio):
         raise Exception(str(response.json()))
 
 
-
-def review_sd15(pipe, prompt, negative_prompt,w,h):
-    image = pipe(prompt=prompt,
-                 negative_prompt=negative_prompt,
-                    height=w,
-                    width=h,
-                    num_inference_steps=50,).images[0]
+def review_sd15(pipe, prompt, negative_prompt, w, h):
+    image = pipe(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        height=w,
+        width=h,
+        num_inference_steps=50,
+    ).images[0]
     return image
 
 
-def review_sd2(pipe, prompt, negative_prompt,w,h):
-
+def review_sd2(pipe, prompt, negative_prompt, w, h):
     prompt = prompt
-    image = pipe(prompt=prompt,
-                 negative_prompt=negative_prompt,
-                    height=w,
-                    width=h,
-                    num_inference_steps=50,).images[0]
+    image = pipe(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        height=w,
+        width=h,
+        num_inference_steps=50,
+    ).images[0]
     return image
 
 
-def review_sdxl(pipe, prompt, negative_prompt,w,h):
-    
+def review_sdxl(pipe, prompt, negative_prompt, w, h):
     prompt = prompt
-    image = pipe(prompt=prompt,
-                 negative_prompt=negative_prompt,
-                    height=w,
-                    width=h,
-                    num_inference_steps=50,
-                 ).images[0]
+    image = pipe(
+        prompt=prompt,
+        negative_prompt=negative_prompt,
+        height=w,
+        width=h,
+        num_inference_steps=50,
+    ).images[0]
     return image
 
 
-def review_sc(prior, decoder, prompt, negative_prompt,w,h):
-
+def review_sc(prior, decoder, prompt, negative_prompt, w, h):
     prior_output = prior(
         prompt=prompt,
         height=w,
@@ -97,16 +98,17 @@ def review_sc(prior, decoder, prompt, negative_prompt,w,h):
     ).images[0]
     return decoder_output
 
+
 def run_sd15(prompts, negative_prompt, width, height, out_dir):
     pipe = StableDiffusionPipeline.from_pretrained(
-    env.sd15_path, torch_dtype=torch.float16
+        env.sd15_path, torch_dtype=torch.float16
     )
     pipe = pipe.to("cuda")
     i = 0
     for prompt in prompts:
-        png_15 = review_sd15(pipe, prompt, negative_prompt,width,height)
+        png_15 = review_sd15(pipe, prompt, negative_prompt, width, height)
         png_15.save(f"{out_dir}sd15_{i}.png")
-        i+=1
+        i += 1
     del pipe
 
 
@@ -120,10 +122,11 @@ def run_sd2(prompts, negative_prompt, width, height, out_dir):
     pipe = pipe.to("cuda")
     i = 0
     for prompt in prompts:
-        png_2 =  review_sd2(pipe, prompt, negative_prompt,width,height)
+        png_2 = review_sd2(pipe, prompt, negative_prompt, width, height)
         png_2.save(f"{out_dir}sd2_{i}.png")
-        i+=1
+        i += 1
     del pipe
+
 
 def run_sc(prompts, negative_prompt, width, height, out_dir):
     negative_prompt = negative_prompt
@@ -140,43 +143,52 @@ def run_sc(prompts, negative_prompt, width, height, out_dir):
 
     i = 0
     for prompt in prompts:
-        png_xl = review_sc(prior, decoder, prompt, negative_prompt,width,height)
+        png_xl = review_sc(prior, decoder, prompt, negative_prompt, width, height)
         png_xl.save(f"{out_dir}sc_{i}.png")
-        i+=1
+        i += 1
 
     del prior
     del decoder
 
+
 def run_sdxl(prompts, negative_prompt, width, height, out_dir):
     pipe = StableDiffusionXLPipeline.from_pretrained(
-            env.sdxl_path, torch_dtype=torch.float16
-        )
+        env.sdxl_path, torch_dtype=torch.float16
+    )
     pipe = pipe.to("cuda")
     i = 0
 
     for prompt in prompts:
-        png_xl = review_sdxl(pipe, prompt, negative_prompt,width,height)
+        png_xl = review_sdxl(pipe, prompt, negative_prompt, width, height)
         png_xl.save(f"{out_dir}sdxl_{i}.png")
-        i+=1
+        i += 1
 
     del pipe
 
-def run_sd3(prompts, negative_prompt,out_dir):
+
+def run_sd3(prompts, negative_prompt, out_dir):
     i = 0
     for prompt in prompts:
-        png_3 = review_sd3(prompt, negative_prompt,"1:1")
+        png_3 = review_sd3(prompt, negative_prompt, "1:1")
         png_3.save(f"{out_dir}sd3_{i}.png")
-        i+=1
+        i += 1
+
 
 def merge_images_in_folder(input_folder, font_size=20):
+    types = ["sd15", "sd2", "sdxl", "sc", "sd3"]
+
     # 获取input_folder中的所有文件
-    files = [f for f in os.listdir(input_folder) if os.path.isfile(os.path.join(input_folder, f))]
+    files = [
+        f
+        for f in os.listdir(input_folder)
+        if os.path.isfile(os.path.join(input_folder, f))
+    ]
 
     # 按后缀数字分组
     groups = {}
     for file in files:
-        prefix, num = file.rsplit('_', 1)
-        num = num.split('.')[0]
+        prefix, num = file.rsplit("_", 1)
+        num = num.split(".")[0]
         if num not in groups:
             groups[num] = []
         groups[num].append(file)
@@ -195,29 +207,41 @@ def merge_images_in_folder(input_folder, font_size=20):
     # 对每组图片进行处理
     for num, group_files in groups.items():
         target_size = (1024, 1024)
-        total_width = target_size[0] * len(group_files)
+        gap_x = 0
+        gap_y = 50
+        total_width = (target_size[0] + gap_x) * len(group_files) - gap_x
         total_height = target_size[1]
-        new_im = Image.new('RGB', (total_width, total_height + 50), (255, 255, 255))  # 增加高度以适应更大的字体
+        new_im = Image.new(
+            "RGB", (total_width, total_height + gap_y), (255, 255, 255)
+        )  # 增加高度以适应更大的字体
 
         x_offset = 0
-        for file in group_files:
-            im = Image.open(os.path.join(input_folder, file))
+        for model_type in types:
+            filepath = os.path.join(input_folder, f"{model_type}_{num}.png")
+            if not os.path.exists(filepath):
+                continue
+            im = Image.open(filepath)
             im = im.resize(target_size)
             new_im.paste(im, (x_offset, 50))  # 从50的高度开始，给文件名留更多空间
-            x_offset += target_size[0]+50
+            x_offset += target_size[0] + gap_x
 
         # 添加文件名
         draw = ImageDraw.Draw(new_im)
         x_offset = 512
-        for file in group_files:
-            draw.text((x_offset + 10, 10), file[:-4], fill=(0, 0, 0), font=font, align="center")
-            x_offset += target_size[0]+50
+        for model_type in types:
+            draw.text(
+                (x_offset, 10),
+                f"{model_type}",
+                fill=(0, 0, 0),
+                font=font,
+                align="center",
+            )
+            x_offset += target_size[0] + gap_x
 
         # 保存新图片
-        new_im.save(os.path.join(output_folder, f"merged_{num}.png"))
+        new_im.save(os.path.join(output_folder, f"merged_{num}.jpg"), quality=90)
 
     print("图片处理完成。")
-
 
 
 def main():
@@ -229,11 +253,11 @@ def main():
     out_dir = "./output/"
     os.makedirs(out_dir, exist_ok=True)
 
-    run_sd15(prompts, negative_prompt, int(width/2), int(height/2), out_dir)
-    run_sd2(prompts, negative_prompt, int(width/4*3), int(height/4*3), out_dir)
-    run_sdxl(prompts, negative_prompt, width, height, out_dir)
-    run_sc(prompts, negative_prompt, width, height, out_dir)
-    run_sd3(prompts, negative_prompt, out_dir)
+    # run_sd3(prompts, negative_prompt, out_dir)
+    # run_sd15(prompts, negative_prompt, int(width/2), int(height/2), out_dir)
+    # run_sd2(prompts, negative_prompt, int(width/4*3), int(height/4*3), out_dir)
+    # run_sdxl(prompts, negative_prompt, width, height, out_dir)
+    # run_sc(prompts, negative_prompt, width, height, out_dir)
     merge_images_in_folder(out_dir, font_size=35)
 
 
