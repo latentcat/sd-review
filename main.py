@@ -182,9 +182,6 @@ def merge_images_in_folder(input_folder, font_size=20):
 
     print("图片处理完成。")
 
-# 使用示例
-merge_images_in_folder("./output", font_size=35)
-
 
 
 def main():
@@ -200,7 +197,7 @@ def main():
     run_sd2(prompts, negative_prompt, int(width/4*3), int(height/4*3), out_dir)
     run_sdxl(prompts, negative_prompt, width, height, out_dir)
     run_sc(prompts, negative_prompt, width, height, out_dir)
-    merge_images_in_folder(out_dir)
+    merge_images_in_folder(out_dir, font_size=35)
 
 
 if __name__ == "__main__":
