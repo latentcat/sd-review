@@ -67,18 +67,20 @@ def review_sc(prior, decoder, prompt, negative_prompt,w,h):
     ).images[0]
     return decoder_output
 
-def run_sd15(prompts, negative_prompt, width, height, out_dir, i):
+def run_sd15(prompts, negative_prompt, width, height, out_dir):
     pipe = StableDiffusionPipeline.from_pretrained(
     env.sd15_path, torch_dtype=torch.float16
     )
     pipe = pipe.to("cuda")
+    i = 0
     for prompt in prompts:
         png_15 = review_sd15(pipe, prompt, negative_prompt,width,height)
         png_15.save(f"{out_dir}sd15_{i}.png")
+        i+=1
     del pipe
 
 
-def run_sd2(prompts, negative_prompt, width, height, out_dir, i):
+def run_sd2(prompts, negative_prompt, width, height, out_dir):
     repo_id = env.sd2_path
     pipe = DiffusionPipeline.from_pretrained(
         repo_id, torch_dtype=torch.float16, revision="fp16"
@@ -86,12 +88,14 @@ def run_sd2(prompts, negative_prompt, width, height, out_dir, i):
 
     pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
     pipe = pipe.to("cuda")
+    i = 0
     for prompt in prompts:
         png_2 =  review_sd2(pipe, prompt, negative_prompt,width,height)
         png_2.save(f"{out_dir}sd2_{i}.png")
+        i+=1
     del pipe
 
-def run_sc(prompts, negative_prompt, width, height, out_dir, i):
+def run_sc(prompts, negative_prompt, width, height, out_dir):
     prompt = prompt
     negative_prompt = negative_prompt
 
@@ -101,20 +105,27 @@ def run_sc(prompts, negative_prompt, width, height, out_dir, i):
     decoder = StableCascadeDecoderPipeline.from_pretrained(
         env.sc_decoder_path, variant="bf16", torch_dtype=torch.float16
     )
+    i = 0
     for prompt in prompts:
         png_xl = review_sc(prior, decoder, prompt, negative_prompt,width,height)
         png_xl.save(f"{out_dir}sc_{i}.png")
+        i+=1
+
     del prior
     del decoder
 
-def run_sdxl(prompts, negative_prompt, width, height, out_dir, i):
+def run_sdxl(prompts, negative_prompt, width, height, out_dir):
     pipe = StableDiffusionXLPipeline.from_pretrained(
             env.sdxl_path, torch_dtype=torch.float16
         )
     pipe = pipe.to("cuda")
+    i = 0
+
     for prompt in prompts:
         png_xl = review_sdxl(pipe, prompt, negative_prompt,width,height)
         png_xl.save(f"{out_dir}sdxl_{i}.png")
+        i+=1
+
     del pipe
 
 
@@ -124,14 +135,13 @@ def main():
     width = 1024
     height = 1024
     negative_prompt = ""
-    i = 0
     out_dir = "./output/"
     os.makedirs(out_dir, exist_ok=True)
 
-    run_sd15(prompts, negative_prompt, width, height, out_dir, i)
-    run_sd2(prompts, negative_prompt, width, height, out_dir, i)
-    run_sdxl(prompts, negative_prompt, width, height, out_dir, i)
-    run_sc(prompts, negative_prompt, width, height, out_dir, i)
+    run_sd15(prompts, negative_prompt, width, height, out_dir)
+    run_sd2(prompts, negative_prompt, width, height, out_dir)
+    run_sdxl(prompts, negative_prompt, width, height, out_dir)
+    run_sc(prompts, negative_prompt, width, height, out_dir)
 
 
 if __name__ == "__main__":
