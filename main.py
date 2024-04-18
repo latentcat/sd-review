@@ -225,7 +225,7 @@ def main():
         prompts = f.readlines()
     width = 1024
     height = 1024
-    negative_prompt = ""
+    negative_prompt = "(worst quality, low quality, normal quality, lowres, low details, oversaturated, undersaturated, overexposed, underexposed, grayscale, bw, bad photo, bad photography, bad art:1.4), (blur, blurry, grainy), morbid, ugly, asymmetrical, mutated malformed, mutilated, poorly lit, bad shadow, draft, cropped, out of frame, cut off, censored, jpeg artifacts, out of focus, glitch, duplicate,"
     out_dir = "./output/"
     os.makedirs(out_dir, exist_ok=True)
 
